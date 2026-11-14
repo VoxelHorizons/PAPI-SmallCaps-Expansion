@@ -51,7 +51,8 @@ class SmallCapsPlaceholderFormatterTest {
 
   @Test
   void doesNotResolveEscapedBraces() {
-    String result = SmallCapsPlaceholderFormatter.format("\\{player_name\\}", value -> "SHOULD NOT RESOLVE");
+    String result = SmallCapsPlaceholderFormatter.format("\\{player_name\\}", value ->
+        value.replace("%player_name%", "SHOULD NOT RESOLVE"));
     assertEquals(SmallCapsCharacterMap.string2SmallCaps("{player name}"), result);
   }
 
