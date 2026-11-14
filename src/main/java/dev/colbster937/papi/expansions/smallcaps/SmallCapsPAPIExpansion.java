@@ -23,14 +23,6 @@ public class SmallCapsPAPIExpansion extends PlaceholderExpansion {
 
   @Override
   public String onRequest(OfflinePlayer plr, String str) {
-    String out = str;
-    out = out
-        .replaceFirst("${regex_a}", "%")
-        .replaceFirst("${regex_b}", "%")
-        .replaceAll("${regex_c}", " ")
-        .replaceAll("${regex_d}", "${dollar}1");
-    if (out.contains("%"))
-      out = PlaceholderAPI.setPlaceholders(plr, out);
-    return SmallCapsCharacterMap.string2SmallCaps(out);
+    return SmallCapsPlaceholderFormatter.format(str, value -> PlaceholderAPI.setPlaceholders(plr, value));
   }
 }
