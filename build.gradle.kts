@@ -6,8 +6,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 
 val EXPANSION_ID = "smallcaps"
 val EXPANSION_NAME = "SmallCaps"
-val EXPANSION_VERSION = "1.0.2"
-val EXPANSION_DEPEND = "ViaVersion"
+val EXPANSION_VERSION = "1.0.3"
 val EXPANSION_AUTHOR = "Colbster937"
 val EXPANSION_BUKKIT_MAIN = "dev.colbster937.papi.expansions.smallcaps.SmallCapsBukkitPlugin"
 
@@ -21,13 +20,11 @@ repositories {
   mavenCentral()
   maven("https://repo.papermc.io/repository/maven-public/")
   maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
-  maven("https://repo.viaversion.com")
 }
 
 dependencies {
   compileOnly("org.bukkit:bukkit:1.8-R0.1-SNAPSHOT")
   compileOnly("me.clip:placeholderapi:2.11.7")
-  compileOnly("com.viaversion:viaversion-api:5.6.0")
 }
 
 sourceSets {
@@ -40,7 +37,6 @@ val EXPAND = mapOf(
   "expansion_id" to EXPANSION_ID,
   "expansion_name" to EXPANSION_NAME,
   "expansion_version" to EXPANSION_VERSION,
-  "expansion_depend" to EXPANSION_DEPEND,
   "expansion_author" to EXPANSION_AUTHOR,
   "expansion_bukkit_main" to EXPANSION_BUKKIT_MAIN,
 
