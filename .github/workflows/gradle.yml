@@ -28,24 +28,34 @@ jobs:
           distribution: temurin
           java-version: '21'
 
-      - name: Set up Gradle 8.14.3
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: '8.14.3'
+      # Avoid third-party setup actions: VoxelHorizons uses a restricted
+      # organization Actions allowlist. Download the verified Gradle binary
+      # directly rather than requiring gradle/actions/setup-gradle.
+      - name: Install verified Gradle 8.14.3
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --show-error --silent --retry 3 \
+            https://services.gradle.org/distributions/gradle-8.14.3-bin.zip \
+            --output "$RUNNER_TEMP/gradle-8.14.3-bin.zip"
+          echo "bd71102213493060956ec229d946beee57158dbd89d0e62b91bca0fa2c5f3531  $RUNNER_TEMP/gradle-8.14.3-bin.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/gradle-8.14.3-bin.zip" -d "$RUNNER_TEMP"
+          "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --version
 
       - name: Build plugin JAR
-        run: gradle --no-daemon clean build
+        run: |
+          "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --no-daemon clean build
 
       - name: Verify plugin JAR and metadata
         shell: bash
         run: |
           set -euo pipefail
-          jar_file="build/libs/PAPI-Expansion-SmallCaps-1.0.3.jar"
+          jar_file="build/libs/PAPI-Expansion-SmallCaps-1.0.4.jar"
           test -s "$jar_file"
           jar tf "$jar_file" | grep -Fq 'dev/colbster937/papi/expansions/smallcaps/SmallCapsPAPIExpansion.class'
           jar tf "$jar_file" | grep -Fq 'dev/colbster937/papi/expansions/smallcaps/SmallCapsBukkitPlugin.class'
           unzip -p "$jar_file" plugin.yml | grep -Fxq 'name: smallcaps'
-          unzip -p "$jar_file" plugin.yml | grep -Fxq 'version: 1.0.3'
+          unzip -p "$jar_file" plugin.yml | grep -Fxq 'version: 1.0.4'
           unzip -p "$jar_file" plugin.yml | grep -Fxq '  - PlaceholderAPI'
           if unzip -p "$jar_file" plugin.yml | grep -Fiq 'ViaVersion'; then
             echo "::error::ViaVersion dependency found in plugin.yml"
@@ -55,8 +65,8 @@ jobs:
       - name: Upload downloadable JAR
         uses: actions/upload-artifact@v4
         with:
-          name: SmallCaps-1.0.3
-          path: build/libs/PAPI-Expansion-SmallCaps-1.0.3.jar
+          name: SmallCaps-1.0.4
+          path: build/libs/PAPI-Expansion-SmallCaps-1.0.4.jar
           if-no-files-found: error
           retention-days: 90
 
@@ -71,7 +81,7 @@ jobs:
       - name: Download built JAR
         uses: actions/download-artifact@v4
         with:
-          name: SmallCaps-1.0.3
+          name: SmallCaps-1.0.4
           path: dist
 
       - name: Determine release tag

@@ -12,7 +12,7 @@ The [Build SmallCaps workflow](https://github.com/VoxelHorizons/PAPI-SmallCaps-E
 - After a merge or other push to `main`.
 - Manually via **Actions → Build SmallCaps → Run workflow**.
 
-Open a successful workflow run, scroll to **Artifacts**, and download **SmallCaps-1.0.3**. Unzip the artifact to get `PAPI-Expansion-SmallCaps-1.0.3.jar`.
+Open a successful workflow run, scroll to **Artifacts**, and download **SmallCaps-1.0.4**. Unzip the artifact to get `PAPI-Expansion-SmallCaps-1.0.4.jar`.
 
 Pushes to `main` also publish the same tested JAR as a prerelease asset on the [Releases page](https://github.com/VoxelHorizons/PAPI-SmallCaps-Expansion/releases).
 
@@ -27,5 +27,17 @@ Quick check:
 ```text
 /papi parse me %smallcaps_HELLO_WORLD%
 ```
+
+## Nested placeholders
+
+SmallCaps resolves brace-wrapped PlaceholderAPI placeholders **before** converting underscores to spaces and applying the SmallCaps character map. For example, the following expression can be used in NPC GUI titles:
+
+```text
+%smallcaps_{logic_npc-name_{npc}}%
+```
+
+When the nested `{npc}` value is provided by your menu/context or a registered PlaceholderAPI expansion, it resolves first, followed by the complete `%logic_npc-name_<id>%` expression. **Do not** put percent delimiters around the inner brace-wrapped values.
+
+Plain text still supports underscores as spaces (`%smallcaps_HELLO_WORLD%`), and escaping `\\_` retains a literal underscore.
 
 This version always converts text to small caps regardless of the player's protocol. Older clients may not support every Unicode glyph.
