@@ -1,14 +1,14 @@
-name: Build Expansion
+name: Build SmallCaps
 
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
+    types: [opened, reopened, synchronize, ready_for_review]
 
 permissions:
-  contents: write
-  actions: read
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -16,53 +16,73 @@ concurrency:
 
 jobs:
   build:
+    name: Build Java plugin
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repo
+      - name: Checkout source
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          submodules: recursive
 
-      - name: Set up JDK 21
+      - name: Set up Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: 21
+          java-version: '21'
 
-      - name: Set up Gradle
+      - name: Set up Gradle 8.14.3
         uses: gradle/actions/setup-gradle@v4
         with:
-          cache-read-only: false
+          gradle-version: '8.14.3'
 
-      - name: Build Expansion
+      - name: Build plugin JAR
+        run: gradle --no-daemon clean build
+
+      - name: Verify plugin JAR and metadata
+        shell: bash
         run: |
-          gradle wrapper
-          chmod +x ./gradlew
-          ./gradlew clean build
+          set -euo pipefail
+          jar_file="build/libs/PAPI-Expansion-SmallCaps-1.0.3.jar"
+          test -s "$jar_file"
+          jar tf "$jar_file" | grep -Fq 'dev/colbster937/papi/expansions/smallcaps/SmallCapsPAPIExpansion.class'
+          jar tf "$jar_file" | grep -Fq 'dev/colbster937/papi/expansions/smallcaps/SmallCapsBukkitPlugin.class'
+          unzip -p "$jar_file" plugin.yml | grep -Fxq 'name: smallcaps'
+          unzip -p "$jar_file" plugin.yml | grep -Fxq 'version: 1.0.3'
+          unzip -p "$jar_file" plugin.yml | grep -Fxq '  - PlaceholderAPI'
+          if unzip -p "$jar_file" plugin.yml | grep -Fiq 'ViaVersion'; then
+            echo "::error::ViaVersion dependency found in plugin.yml"
+            exit 1
+          fi
 
-      - name: Get short commit hash
-        id: vars
-        run: echo "hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-
-      - name: Package artifacts
-        run: |
-          mkdir -p dist
-          cp ./build/libs/* ./dist
-
-      - name: Upload build
+      - name: Upload downloadable JAR
         uses: actions/upload-artifact@v4
         with:
-          path: dist/*
+          name: SmallCaps-1.0.3
+          path: build/libs/PAPI-Expansion-SmallCaps-1.0.3.jar
+          if-no-files-found: error
+          retention-days: 90
 
-      - name: Create Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  release:
+    name: Publish release on main
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download built JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: SmallCaps-1.0.3
+          path: dist
+
+      - name: Determine release tag
+        id: tag
+        shell: bash
+        run: echo "name=$(printf '%.7s' "$GITHUB_SHA")" >> "$GITHUB_OUTPUT"
+
+      - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.vars.outputs.hash }}
-          name: Commit ${{ steps.vars.outputs.hash }}
-          files: dist/*
+          tag_name: ${{ steps.tag.outputs.name }}
+          name: Commit ${{ steps.tag.outputs.name }}
+          files: dist/*.jar
           prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
