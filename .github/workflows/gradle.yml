@@ -50,12 +50,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          jar_file="build/libs/PAPI-Expansion-SmallCaps-1.0.3.jar"
+          jar_file="build/libs/PAPI-Expansion-SmallCaps-1.0.4.jar"
           test -s "$jar_file"
           jar tf "$jar_file" | grep -Fq 'dev/colbster937/papi/expansions/smallcaps/SmallCapsPAPIExpansion.class'
           jar tf "$jar_file" | grep -Fq 'dev/colbster937/papi/expansions/smallcaps/SmallCapsBukkitPlugin.class'
           unzip -p "$jar_file" plugin.yml | grep -Fxq 'name: smallcaps'
-          unzip -p "$jar_file" plugin.yml | grep -Fxq 'version: 1.0.3'
+          unzip -p "$jar_file" plugin.yml | grep -Fxq 'version: 1.0.4'
           unzip -p "$jar_file" plugin.yml | grep -Fxq '  - PlaceholderAPI'
           if unzip -p "$jar_file" plugin.yml | grep -Fiq 'ViaVersion'; then
             echo "::error::ViaVersion dependency found in plugin.yml"
@@ -65,8 +65,8 @@ jobs:
       - name: Upload downloadable JAR
         uses: actions/upload-artifact@v4
         with:
-          name: SmallCaps-1.0.3
-          path: build/libs/PAPI-Expansion-SmallCaps-1.0.3.jar
+          name: SmallCaps-1.0.4
+          path: build/libs/PAPI-Expansion-SmallCaps-1.0.4.jar
           if-no-files-found: error
           retention-days: 90
 
@@ -81,7 +81,7 @@ jobs:
       - name: Download built JAR
         uses: actions/download-artifact@v4
         with:
-          name: SmallCaps-1.0.3
+          name: SmallCaps-1.0.4
           path: dist
 
       - name: Determine release tag
