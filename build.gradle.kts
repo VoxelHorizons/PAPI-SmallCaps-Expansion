@@ -18,8 +18,9 @@ plugins {
 
 repositories {
   mavenCentral()
+  maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+  maven("https://repo.helpch.at/releases/")
   maven("https://repo.papermc.io/repository/maven-public/")
-  maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
