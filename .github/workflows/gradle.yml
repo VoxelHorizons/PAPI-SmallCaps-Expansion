@@ -43,7 +43,8 @@ jobs:
           "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --version
 
       - name: Build plugin JAR
-        run: "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --no-daemon clean build
+        run: |
+          "$RUNNER_TEMP/gradle-8.14.3/bin/gradle" --no-daemon clean build
 
       - name: Verify plugin JAR and metadata
         shell: bash
