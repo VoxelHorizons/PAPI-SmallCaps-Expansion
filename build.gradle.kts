@@ -6,7 +6,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 
 val EXPANSION_ID = "smallcaps"
 val EXPANSION_NAME = "SmallCaps"
-val EXPANSION_VERSION = "1.0.3"
+val EXPANSION_VERSION = "1.0.4"
 val EXPANSION_AUTHOR = "Colbster937"
 val EXPANSION_BUKKIT_MAIN = "dev.colbster937.papi.expansions.smallcaps.SmallCapsBukkitPlugin"
 
@@ -26,6 +26,8 @@ repositories {
 dependencies {
   compileOnly("org.bukkit:bukkit:1.8-R0.1-SNAPSHOT")
   compileOnly("me.clip:placeholderapi:2.11.7")
+  testImplementation("org.junit.jupiter:junit-jupiter:5.11.4")
+  testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
 sourceSets {
@@ -39,13 +41,7 @@ val EXPAND = mapOf(
   "expansion_name" to EXPANSION_NAME,
   "expansion_version" to EXPANSION_VERSION,
   "expansion_author" to EXPANSION_AUTHOR,
-  "expansion_bukkit_main" to EXPANSION_BUKKIT_MAIN,
-
-  "regex_a" to "(?<!\\\\\\\\)\\\\{",
-  "regex_b" to "(?s)(?<!\\\\\\\\)\\\\}(?!.*(?<!\\\\\\\\)\\\\})",
-  "regex_c" to "(?<!\\\\\\\\)_",
-  "regex_d" to "\\\\\\\\([{}_])",
-  "dollar" to "$"
+  "expansion_bukkit_main" to EXPANSION_BUKKIT_MAIN
 )
 
 tasks.register<Copy>("generateExpansionSource") {
@@ -76,6 +72,10 @@ tasks.named<JavaCompile>("compileJava") {
     fileTree(layout.buildDirectory.dir("generated/sources/expansion/main")) {
       include("**/${EXPANSION_NAME}PAPIExpansion.java")
     }
+}
+
+tasks.test {
+  useJUnitPlatform()
 }
 
 tasks.jar {
